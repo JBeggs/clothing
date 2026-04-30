@@ -1,0 +1,27 @@
+# Wire and Bead Environment Variables
+# Copy this file to .env.local and fill in the values
+
+# API Configuration
+NEXT_PUBLIC_API_URL=https://3pillars.pythonanywhere.com/api
+NEXT_PUBLIC_COMPANY_SLUG=wire-and-bead
+
+# Canonical public URL of this deployment (no trailing slash). Used for Open Graph / WhatsApp
+# previews (absolute og:image and og:url). Set in Vercel → Project → Settings → Environment Variables.
+#
+# Preview example:
+# NEXT_PUBLIC_SITE_URL=https://wire-and-bead.vercel.app
+#
+# Production: use your real domain, e.g. https://www.your-domain.com
+#
+# If unset, the app falls back to VERCEL_URL on Vercel (https://$VERCEL_URL) at runtime.
+
+# Optional: User-Agent for the OG image proxy when fetching upstream media (defaults to
+# `${NEXT_PUBLIC_COMPANY_SLUG}-OgProxy/1.0` with unsafe characters stripped).
+# OG_PROXY_USER_AGENT=MyStore-OgProxy/1.0
+
+# Optional: Override for local development
+# NEXT_PUBLIC_API_URL=http://localhost:8000/api
+
+# Optional: SSH key passphrase for git scripts (new_branch, commit_push, merge_to_main)
+# Add this to avoid interactive passphrase prompts when pushing/pulling over SSH
+# SSH_KEY_PASSPHRASE=your_passphrase

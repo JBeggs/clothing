@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Clothing">
+  <defs>
+    <linearGradient id="c" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9e6c6c"/>
+      <stop offset="100%" stop-color="#5c524a"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="7" fill="url(#c)"/>
+  <path d="M10 11h12l2 4v14H8V15l2-4z" fill="none" stroke="#fdf8f5" stroke-width="1.8" stroke-linejoin="round"/>
+  <path d="M12 11c1-2 2.5-3 4-3s3 1 4 3" fill="none" stroke="#fdf8f5" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M11 15h10" stroke="#d4af91" stroke-width="1.2" stroke-linecap="round" opacity="0.9"/>
+</svg>
