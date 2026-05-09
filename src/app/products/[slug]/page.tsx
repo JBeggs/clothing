@@ -193,7 +193,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </div>
 
               {/* Add to Cart Section */}
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-6">
+              <div className="card p-6 rounded-2xl space-y-6">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <p className="text-xs uppercase font-bold tracking-widest text-text-muted">Availability</p>
@@ -273,7 +273,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 {/* Specs: hide for Gumtree (no reliable weight/dims from listing scrape) */}
                 {!isGumtree &&
                   (product.weight || (Number(product.dimension_length) > 0 || Number(product.dimension_width) > 0 || Number(product.dimension_height) > 0)) && (
-                  <div className="grid grid-cols-2 gap-4 pt-6 border-t border-gray-100">
+                  <div className="grid grid-cols-2 gap-4 pt-6 border-t border-border-default/50">
                     {product.weight && (
                       <div className="space-y-1">
                         <p className="text-[10px] uppercase font-bold text-text-muted tracking-widest">Weight</p>
@@ -293,8 +293,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </div>
 
               {/* Trust Badges / Process Explanation */}
-              <div className="pt-8 border-t border-gray-100">
-                <div className="bg-white rounded-2xl p-6 border border-vintage-primary/10 shadow-sm space-y-4">
+              <div className="pt-8 border-t border-border-default/50">
+                <div className="card p-6 rounded-2xl space-y-4">
                   <h3 className="text-sm font-bold uppercase tracking-widest text-text flex items-center gap-2">
                     <Phone className="w-4 h-4 text-vintage-primary" />
                     How to Purchase

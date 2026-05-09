@@ -25,7 +25,7 @@ export default function ConfirmDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md animate-in fade-in zoom-in duration-200">
+      <div className="bg-surface rounded-xl shadow-2xl w-full max-w-md animate-in fade-in zoom-in duration-200 border border-border-default">
         <div className="p-6">
           <h2 className="text-xl font-bold font-playfair text-text mb-2">{title}</h2>
           <p className="text-text-light mb-6">{message}</p>
