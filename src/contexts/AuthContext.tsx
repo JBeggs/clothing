@@ -14,7 +14,10 @@ interface User {
 interface Profile {
   user: string
   email: string
+  pending_email?: string
   username?: string
+  first_name?: string
+  last_name?: string
   full_name?: string
   bio?: string
   avatar_url?: string
@@ -100,12 +103,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (profileData.user) {
+        const fn =
+          (typeof profileData.first_name === 'string' && profileData.first_name) ||
+          profileData.full_name?.split(' ')[0]
+        const ln =
+          (typeof profileData.last_name === 'string' && profileData.last_name) ||
+          profileData.full_name?.split(' ').slice(1).join(' ')
         setUser({
           id: profileData.user,
           email: profileData.email,
           username: profileData.username,
-          first_name: profileData.full_name?.split(' ')[0],
-          last_name: profileData.full_name?.split(' ').slice(1).join(' '),
+          first_name: fn,
+          last_name: ln,
         })
       }
     } catch (error: any) {
