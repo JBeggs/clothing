@@ -19,15 +19,48 @@ export default function LoginPage() {
   const searchParams = useSearchParams()
   const returnUrl = searchParams.get('return') || '/'
 
+  const [needsVerifyHint, setNeedsVerifyHint] = useState(false)
+  const [needsPhoneVerifyHint, setNeedsPhoneVerifyHint] = useState(false)
+  const [resendBusy, setResendBusy] = useState(false)
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setNeedsVerifyHint(false)
+    setNeedsPhoneVerifyHint(false)
 
     try {
-      const { error } = await signIn(username, password)
-      
+      const {
+        error,
+        code,
+        verificationEmailSent,
+        verificationEmailCooldown,
+      } = await signIn(username, password)
+
       if (error) {
-        showError(error)
+        if (code === 'email_not_verified') {
+          const base =
+            'Your account is not verified yet. Please check your email (including spam or junk) for a message with a verification link. Open that link, then return here to sign in.'
+          let detail = base
+          if (verificationEmailSent) {
+            detail +=
+              ' We have sent another verification email—please look for it in your inbox.'
+          } else if (verificationEmailCooldown) {
+            detail +=
+              ' A verification email was already sent recently (within 24 hours). Check your existing messages for the link, or use “Resend email” below if you still cannot find it.'
+          }
+          showError(detail)
+          setNeedsVerifyHint(true)
+        } else if (code === 'phone_not_verified') {
+          const detail =
+            typeof error === 'string' && error.trim()
+              ? error
+              : 'Your cellphone number must be verified before you can sign in. Open your profile to complete verification.'
+          showError(detail)
+          setNeedsPhoneVerifyHint(true)
+        } else {
+          showError(typeof error === 'string' ? error : 'Login failed')
+        }
       } else {
         showSuccess('Login successful! Syncing your cart...')
         try {
@@ -47,7 +80,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-vintage-background flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 animate-in fade-in duration-500">
-        <div className="card p-8 shadow-xl">
+        <div className="bg-white p-8 rounded-xl shadow-xl border border-vintage-primary/10">
           <div className="text-center mb-10">
             <Link href="/" className="inline-block group transition-transform hover:scale-105 duration-300">
               <div className="w-20 h-20 brand-icon-tile rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-black/15 group-hover:shadow-black/25 transition-shadow">
@@ -73,7 +106,7 @@ export default function LoginPage() {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="form-input pl-12 pr-4 py-3 relative z-10 hover:border-primary/50 transition-colors placeholder:text-text-muted"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-md hover:border-vintage-primary/50 transition-all focus:bg-white focus:ring-4 focus:ring-vintage-primary/10 focus:outline-none focus:border-transparent relative z-10"
                   placeholder="Enter your username"
                   required
                 />
@@ -85,7 +118,7 @@ export default function LoginPage() {
                 <label htmlFor="password" className="form-label text-sm font-semibold uppercase tracking-wider text-text-light">
                   Password
                 </label>
-                <Link href="#" className="text-xs font-semibold text-vintage-primary hover:text-vintage-primary-dark transition-colors">
+                <Link href="/forgot-password" className="text-xs font-semibold text-vintage-primary hover:text-vintage-primary-dark transition-colors">
                   Forgot password?
                 </Link>
               </div>
@@ -99,7 +132,7 @@ export default function LoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="form-input pl-12 pr-4 py-3 relative z-10 hover:border-primary/50 transition-colors placeholder:text-text-muted"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-md hover:border-vintage-primary/50 transition-all focus:bg-white focus:ring-4 focus:ring-vintage-primary/10 focus:outline-none focus:border-transparent relative z-10"
                   placeholder="••••••••"
                   required
                 />
@@ -111,7 +144,7 @@ export default function LoginPage() {
                 id="remember-me"
                 name="remember-me"
                 type="checkbox"
-                className="h-4 w-4 text-vintage-primary focus:ring-vintage-primary border-border-default rounded cursor-pointer"
+                className="h-4 w-4 text-vintage-primary focus:ring-vintage-primary border-gray-300 rounded cursor-pointer"
               />
               <label htmlFor="remember-me" className="ml-2 block text-sm text-text-light cursor-pointer select-none">
                 Remember me
@@ -141,7 +174,55 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-10 pt-8 border-t border-border-default text-center">
+          {needsVerifyHint ? (
+            <div className="mt-6 p-4 rounded-lg bg-amber-50 border border-amber-200 text-sm space-y-3">
+              <p className="text-text font-medium">
+                Email verification is required. Check your inbox and spam folder for our link before signing in.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  href={`/auth/verify-email?email=${encodeURIComponent(username.trim())}`}
+                  className="btn btn-secondary text-sm py-2"
+                >
+                  Open verification help
+                </Link>
+                <button
+                  type="button"
+                  disabled={resendBusy}
+                  onClick={async () => {
+                    try {
+                      setResendBusy(true)
+                      const { authApi } = await import('@/lib/api')
+                      await authApi.resendVerificationEmail(username.trim())
+                      showSuccess(
+                        'If your account exists and still needs verification, we sent another email.',
+                      )
+                    } catch {
+                      showError('Could not resend. Try again shortly.')
+                    } finally {
+                      setResendBusy(false)
+                    }
+                  }}
+                  className="btn btn-primary text-sm py-2"
+                >
+                  {resendBusy ? 'Sending…' : 'Resend email'}
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          {needsPhoneVerifyHint ? (
+            <div className="mt-6 p-4 rounded-lg bg-amber-50 border border-amber-200 text-sm space-y-3">
+              <p className="text-text font-medium">
+                Phone verification is required. Complete verification from your profile, then sign in again.
+              </p>
+              <Link href="/profile" className="btn btn-secondary text-sm py-2 inline-flex">
+                Go to profile
+              </Link>
+            </div>
+          ) : null}
+
+          <div className="mt-10 pt-8 border-t border-gray-100 text-center">
             <p className="text-text-muted">
               Don&apos;t have an account?{' '}
               <Link href="/register" className="text-vintage-primary hover:text-vintage-primary-dark font-bold transition-colors underline underline-offset-4">
