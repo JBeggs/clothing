@@ -44,6 +44,20 @@ vi.mock('next/image', () => ({
   },
 }));
 
+/** jsdom does not decode images; keep ProductCard image-reveal logic stable in tests */
+Object.defineProperty(HTMLImageElement.prototype, 'complete', {
+  get() {
+    return true;
+  },
+  configurable: true,
+});
+Object.defineProperty(HTMLImageElement.prototype, 'naturalHeight', {
+  get() {
+    return 1;
+  },
+  configurable: true,
+});
+
 beforeEach(() => {
   localStorage.clear();
 });

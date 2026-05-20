@@ -81,28 +81,20 @@ export default function ProductCard({ product, homeQuickView = false }: ProductC
   const [countdown, setCountdown] = useState(() => formatCountdown(product.timed_expires_at))
   const [mainImageLoaded, setMainImageLoaded] = useState(false)
   const [bundleAllLoaded, setBundleAllLoaded] = useState(nBundleTiles === 0)
-  const [prevBundleKey, setPrevBundleKey] = useState(bundleKey)
-  if (bundleKey !== prevBundleKey) {
-    setPrevBundleKey(bundleKey)
-    setBundleAllLoaded(nBundleTiles === 0)
-  }
   const mainImgRef = useRef<HTMLImageElement>(null)
-  const mainImageEpoch = `${mainImage ?? ''}|${showBundleGrid}`
-  const [prevMainImageEpoch, setPrevMainImageEpoch] = useState(mainImageEpoch)
-  if (mainImageEpoch !== prevMainImageEpoch) {
-    setPrevMainImageEpoch(mainImageEpoch)
-    setMainImageLoaded(false)
-  }
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [homeModalOpen, setHomeModalOpen] = useState(false)
 
+  useEffect(() => {
+    setBundleAllLoaded(nBundleTiles === 0)
+  }, [bundleKey, nBundleTiles])
+
   useLayoutEffect(() => {
     if (showBundleGrid || !mainImage) return
+    setMainImageLoaded(false)
     const el = mainImgRef.current
     if (el?.complete && el.naturalHeight > 0) {
-      queueMicrotask(() => {
-        setMainImageLoaded(true)
-      })
+      setMainImageLoaded(true)
     }
   }, [mainImage, showBundleGrid])
 
