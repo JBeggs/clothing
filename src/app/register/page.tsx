@@ -8,8 +8,13 @@ import { useCart } from '@/contexts/CartContext'
 import { useToast } from '@/contexts/ToastContext'
 import { Mail, Lock, User, ArrowRight, Phone } from 'lucide-react'
 
+function countDigits(value: string) {
+  return value.replace(/\D/g, '').length
+}
+
 export default function RegisterPage() {
-  const [fullName, setFullName] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
@@ -22,7 +27,7 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (password !== confirmPassword) {
       showError('Passwords do not match')
       return
@@ -33,16 +38,38 @@ export default function RegisterPage() {
       return
     }
 
-    setIsLoading(true)
-
-    if (!phone.trim()) {
-      showError('Cellphone is required for delivery')
+    const fn = firstName.trim()
+    const ln = lastName.trim()
+    if (!fn) {
+      showError('Please enter your first name')
+      return
+    }
+    if (!ln) {
+      showError('Please enter your last name')
       return
     }
 
+    const phoneTrim = phone.trim()
+    if (!phoneTrim) {
+      showError('Please enter your cellphone number')
+      return
+    }
+    if (countDigits(phoneTrim) < 8) {
+      showError('Cellphone must include at least 8 digits')
+      return
+    }
+
+    setIsLoading(true)
+
     try {
-      const { error, verificationRequired, email: verificationEmail } = await signUp(email, password, fullName, phone.trim())
-      
+      const { error, verificationRequired, email: verificationEmail } = await signUp(
+        email,
+        password,
+        fn,
+        ln,
+        phoneTrim,
+      )
+
       if (error) {
         showError(error)
       } else if (verificationRequired && verificationEmail) {
@@ -80,21 +107,44 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <label htmlFor="fullName" className="form-label text-sm font-semibold uppercase tracking-wider text-text-light">
-                Full Name
+              <label htmlFor="register-first-name" className="form-label text-sm font-semibold uppercase tracking-wider text-text-light">
+                First name *
               </label>
               <div className="relative group">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none transition-colors group-focus-within:text-vintage-primary z-20">
                   <User className="w-5 h-5 text-text-muted" />
                 </div>
                 <input
-                  id="fullName"
-                  data-cy="register-full-name"
+                  id="register-first-name"
+                  data-cy="register-first-name"
                   type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="form-input pl-12 pr-4 py-3 relative z-10 hover:border-primary/50 transition-colors placeholder:text-text-muted"
-                  placeholder="John Doe"
+                  autoComplete="given-name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-md hover:border-vintage-primary/50 transition-all focus:bg-white focus:ring-4 focus:ring-vintage-primary/10 focus:outline-none focus:border-transparent relative z-10"
+                  placeholder="John"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="register-last-name" className="form-label text-sm font-semibold uppercase tracking-wider text-text-light">
+                Last name *
+              </label>
+              <div className="relative group">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none transition-colors group-focus-within:text-vintage-primary z-20">
+                  <User className="w-5 h-5 text-text-muted" />
+                </div>
+                <input
+                  id="register-last-name"
+                  data-cy="register-last-name"
+                  type="text"
+                  autoComplete="family-name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-md hover:border-vintage-primary/50 transition-all focus:bg-white focus:ring-4 focus:ring-vintage-primary/10 focus:outline-none focus:border-transparent relative z-10"
+                  placeholder="Doe"
                   required
                 />
               </div>
@@ -112,16 +162,17 @@ export default function RegisterPage() {
                   id="phone"
                   data-cy="register-phone"
                   type="tel"
+                  autoComplete="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="form-input pl-12 pr-4 py-3 relative z-10 hover:border-primary/50 transition-colors placeholder:text-text-muted"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-md hover:border-vintage-primary/50 transition-all focus:bg-white focus:ring-4 focus:ring-vintage-primary/10 focus:outline-none focus:border-transparent relative z-10"
                   placeholder="+27 82 123 4567"
                   required
                 />
               </div>
               <p className="text-xs text-text-muted flex items-center gap-1 ml-1">
                 <span className="w-1 h-1 bg-text-muted rounded-full"></span>
-                Required for delivery
+                Required for delivery (at least 8 digits)
               </p>
             </div>
 
@@ -139,7 +190,7 @@ export default function RegisterPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="form-input pl-12 pr-4 py-3 relative z-10 hover:border-primary/50 transition-colors placeholder:text-text-muted"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-md hover:border-vintage-primary/50 transition-all focus:bg-white focus:ring-4 focus:ring-vintage-primary/10 focus:outline-none focus:border-transparent relative z-10"
                   placeholder="you@example.com"
                   required
                 />
@@ -160,7 +211,7 @@ export default function RegisterPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="form-input pl-12 pr-4 py-3 relative z-10 hover:border-primary/50 transition-colors placeholder:text-text-muted"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-md hover:border-vintage-primary/50 transition-all focus:bg-white focus:ring-4 focus:ring-vintage-primary/10 focus:outline-none focus:border-transparent relative z-10"
                   placeholder="••••••••"
                   required
                   minLength={8}
@@ -186,7 +237,7 @@ export default function RegisterPage() {
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="form-input pl-12 pr-4 py-3 relative z-10 hover:border-primary/50 transition-colors placeholder:text-text-muted"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-md hover:border-vintage-primary/50 transition-all focus:bg-white focus:ring-4 focus:ring-vintage-primary/10 focus:outline-none focus:border-transparent relative z-10"
                   placeholder="••••••••"
                   required
                 />
@@ -218,7 +269,7 @@ export default function RegisterPage() {
             </div>
           </form>
 
-          <div className="mt-10 pt-8 border-t border-border-default text-center">
+          <div className="mt-10 pt-8 border-t border-gray-100 text-center">
             <p className="text-text-muted">
               Already have an account?{' '}
               <Link href="/login" className="text-vintage-primary hover:text-vintage-primary-dark font-bold transition-colors underline underline-offset-4">

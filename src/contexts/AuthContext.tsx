@@ -48,7 +48,8 @@ interface AuthContextType {
   signUp: (
     email: string,
     password: string,
-    fullName: string,
+    firstName: string,
+    lastName: string,
     phone: string,
   ) => Promise<{ error: string | null; verificationRequired?: boolean; email?: string }>
   signOut: () => Promise<void>
@@ -286,14 +287,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const signUp = async (email: string, password: string, fullName: string, phone: string) => {
+  const signUp = async (email: string, password: string, firstName: string, lastName: string, phone: string) => {
     setLoading(true)
     try {
       const response = await authApi.register({
         email,
         password,
         password_confirm: password,
-        full_name: fullName,
+        first_name: firstName,
+        last_name: lastName,
         phone,
       })
 
@@ -329,6 +331,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             username: 'Username',
             password: 'Password',
             password_confirm: 'Password confirmation',
+            first_name: 'First name',
+            last_name: 'Last name',
             full_name: 'Full name',
             phone: 'Cellphone',
           }

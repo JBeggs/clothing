@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { ecommerceApi, newsApi } from '@/lib/api'
+import { ecommerceApi, newsApi, getApiErrorMessage } from '@/lib/api'
 import { Order, IntegrationSettings, IntegrationSettingsUpdatePayload } from '@/lib/types'
 import { useToast } from '@/contexts/ToastContext'
 import { Package, User, Calendar, MapPin, ChevronRight, Loader2, Save, Building2, Clock, Settings, CreditCard, Truck, Eye, EyeOff, UserCircle, ShoppingBag, Globe, Zap } from 'lucide-react'
@@ -265,16 +265,20 @@ export default function ProfilePage() {
       const fullName = [formData.first_name, formData.last_name].filter(Boolean).join(' ')
       const prevLoginEmail = (profile?.email || '').trim().toLowerCase()
       const typedEmail = formData.email.trim().toLowerCase()
+      // Merge JSON fields so PATCH does not wipe server-only keys (DRF replaces whole JSON blobs).
+      const social_links = { ...(profile?.social_links || {}), ...formData.social_links }
+      const preferences = { ...(profile?.preferences || {}), ...formData.preferences }
+      // Send explicit '' for cleared text fields — `field || undefined` omits keys from JSON, so partial PATCH would keep old DB values.
       const updated: any = await newsApi.profile.patch({
-        full_name: fullName || undefined,
-        first_name: formData.first_name || undefined,
-        last_name: formData.last_name || undefined,
+        full_name: fullName,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
         email: formData.email.trim(),
-        phone: formData.phone || undefined,
-        bio: formData.bio || undefined,
-        avatar_url: formData.avatar_url || undefined,
-        social_links: formData.social_links,
-        preferences: formData.preferences,
+        phone: formData.phone,
+        bio: formData.bio,
+        avatar_url: formData.avatar_url,
+        social_links,
+        preferences,
       })
       await refreshProfile()
       if (typedEmail !== prevLoginEmail && updated?.pending_email) {
@@ -283,7 +287,7 @@ export default function ProfilePage() {
         showSuccess('Profile updated successfully')
       }
     } catch (error: any) {
-      showError(error.message || 'Failed to update profile')
+      showError(getApiErrorMessage(error, 'Failed to update profile'))
     } finally {
       setUpdating(false)
     }
@@ -332,7 +336,7 @@ export default function ProfilePage() {
       }
       showSuccess('Business profile updated')
     } catch (error: any) {
-      showError(error.message || 'Failed to update business profile')
+      showError(getApiErrorMessage(error, 'Failed to update business profile'))
     } finally {
       setUpdatingCompany(false)
     }
@@ -351,22 +355,24 @@ export default function ProfilePage() {
       if (url) {
         const fullName = [formData.first_name, formData.last_name].filter(Boolean).join(' ')
         setFormData((f) => ({ ...f, avatar_url: url }))
+        const social_links = { ...(profile?.social_links || {}), ...formData.social_links }
+        const preferences = { ...(profile?.preferences || {}), ...formData.preferences }
         await newsApi.profile.patch({
-          full_name: fullName || undefined,
-          first_name: formData.first_name || undefined,
-          last_name: formData.last_name || undefined,
+          full_name: fullName,
+          first_name: formData.first_name,
+          last_name: formData.last_name,
           email: formData.email.trim(),
-          phone: formData.phone || undefined,
-          bio: formData.bio || undefined,
+          phone: formData.phone,
+          bio: formData.bio,
           avatar_url: url,
-          social_links: formData.social_links,
-          preferences: formData.preferences,
+          social_links,
+          preferences,
         })
         await refreshProfile()
         showSuccess('Profile picture updated')
       }
     } catch (error: any) {
-      showError(error.message || 'Failed to upload profile picture')
+      showError(getApiErrorMessage(error, 'Failed to upload profile picture'))
     } finally {
       setUploadingAvatar(false)
       e.target.value = ''
@@ -400,7 +406,7 @@ export default function ProfilePage() {
       }
       showSuccess('Integration settings saved')
     } catch (error: any) {
-      showError(error.message || 'Failed to save integration settings')
+      showError(getApiErrorMessage(error, 'Failed to save integration settings'))
     } finally {
       setUpdatingIntegration(false)
     }
@@ -429,7 +435,7 @@ export default function ProfilePage() {
         showSuccess('Logo updated')
       }
     } catch (error: any) {
-      showError(error.message || 'Failed to upload logo')
+      showError(getApiErrorMessage(error, 'Failed to upload logo'))
     } finally {
       setUploadingLogo(false)
       e.target.value = ''
@@ -452,7 +458,7 @@ export default function ProfilePage() {
       setCompany((c) => (c ? { ...c, logo: null, logo_url: '' } : null))
       showSuccess('Logo removed')
     } catch (error: any) {
-      showError(error.message || 'Failed to remove logo')
+      showError(getApiErrorMessage(error, 'Failed to remove logo'))
     } finally {
       setRemovingLogo(false)
     }
@@ -1030,7 +1036,7 @@ export default function ProfilePage() {
                         setSiteSettingsValues(vals)
                         showSuccess('Site settings updated')
                       } catch (err: any) {
-                        showError(err?.message || 'Failed to update site settings')
+                        showError(getApiErrorMessage(err, 'Failed to update site settings'))
                       } finally {
                         setUpdatingSiteSettings(false)
                       }
