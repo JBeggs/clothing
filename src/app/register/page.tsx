@@ -56,23 +56,25 @@ export default function RegisterPage() {
 
     const fn = firstName.trim()
     const ln = lastName.trim()
-    if (!fn) {
-      showError('Please enter your first name')
-      return
-    }
-    if (!ln) {
-      showError('Please enter your last name')
-      return
-    }
-
     const phoneTrim = phone.trim()
-    if (!phoneTrim) {
-      showError('Please enter your cellphone number')
-      return
-    }
-    if (countDigits(phoneTrim) < 8) {
-      showError('Cellphone must include at least 8 digits')
-      return
+
+    if (!linkMode) {
+      if (!fn) {
+        showError('Please enter your first name')
+        return
+      }
+      if (!ln) {
+        showError('Please enter your last name')
+        return
+      }
+      if (!phoneTrim) {
+        showError('Please enter your cellphone number')
+        return
+      }
+      if (countDigits(phoneTrim) < 8) {
+        showError('Cellphone must include at least 8 digits')
+        return
+      }
     }
 
     setIsLoading(true)
@@ -89,9 +91,9 @@ export default function RegisterPage() {
       const { error, verificationRequired, email: verificationEmail, accountLinked } = await signUp(
         email,
         password,
-        fn,
-        ln,
-        phoneTrim,
+        linkMode ? '' : fn,
+        linkMode ? '' : ln,
+        linkMode ? '' : phoneTrim,
       )
 
       if (error) {
@@ -154,7 +156,8 @@ export default function RegisterPage() {
                 <Link2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
                 <p>
                   An account with this email already exists. Enter your password to link this store
-                  to your existing account — we won&apos;t create a duplicate.
+                  to your existing account — we won&apos;t create a duplicate. Your profile details
+                  are already on file.
                 </p>
               </div>
             </div>
@@ -183,6 +186,8 @@ export default function RegisterPage() {
           ) : null}
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {!linkMode ? (
+            <>
             <div className="space-y-2">
               <label htmlFor="register-first-name" className="form-label text-sm font-semibold uppercase tracking-wider text-text-light">
                 First name *
@@ -252,6 +257,8 @@ export default function RegisterPage() {
                 Required for delivery (at least 8 digits)
               </p>
             </div>
+            </>
+            ) : null}
 
             <div className="space-y-2">
               <label htmlFor="email" className="form-label text-sm font-semibold uppercase tracking-wider text-text-light">
