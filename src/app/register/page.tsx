@@ -88,12 +88,15 @@ export default function RegisterPage() {
         return
       }
 
+      const isLink = linkMode || checkStatus === 'existing_can_link'
+
       const { error, verificationRequired, email: verificationEmail, accountLinked } = await signUp(
         email,
         password,
-        linkMode ? '' : fn,
-        linkMode ? '' : ln,
-        linkMode ? '' : phoneTrim,
+        isLink ? '' : fn,
+        isLink ? '' : ln,
+        isLink ? '' : phoneTrim,
+        isLink ? { linkOnly: true } : undefined,
       )
 
       if (error) {
