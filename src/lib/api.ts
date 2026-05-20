@@ -713,10 +713,14 @@ export const authApi = {
       false,
     )
   },
-  async checkRegistrationEmail(email: string) {
+  async checkRegistrationEmail(email: string, options?: { linkable?: boolean }) {
     return apiClient.post<{ status: 'available' | 'existing_can_link' | 'existing_no_link' | 'already_linked' }>(
       '/auth/check-registration-email/',
-      { email: email.trim().toLowerCase(), company_slug: DEFAULT_COMPANY_SLUG, linkable: true },
+      {
+        email: email.trim().toLowerCase(),
+        company_slug: DEFAULT_COMPANY_SLUG,
+        linkable: options?.linkable ?? true,
+      },
       false,
     )
   },
