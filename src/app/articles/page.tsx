@@ -5,7 +5,7 @@ import {
   getArticleDisplaySettings,
 } from '@/lib/article-display-settings'
 import { Article } from '@/lib/types'
-import { getArticleCardImageUrl } from '@/lib/image-utils'
+import { getArticleCardImageUrl, IMAGE_DIM } from '@/lib/image-utils'
 import { resolveArticleAuthorLabel } from '@/lib/article-author-options'
 import { Calendar, User, ArrowRight, Search, Newspaper } from 'lucide-react'
 import PageHero from '@/components/hero/PageHero'
@@ -76,10 +76,10 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
       <section className="py-12 bg-vintage-primary text-white">
         <div className="container-wide">
           <h1 className="text-3xl md:text-4xl font-bold font-playfair mb-2">
-            Style Journal
+            Stories & Inspiration
           </h1>
           <p className="text-lg text-green-100">
-            Fashion tips, styling guides, and seasonal edits from our editorial team
+            Tips, guides, and behind-the-scenes from the world of vintage and modern treasures
           </p>
         </div>
       </section>
@@ -147,6 +147,10 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
                   <img
                     src={getArticleCardImageUrl(article)}
                     alt={article.title}
+                    width={IMAGE_DIM.articleCard.width}
+                    height={IMAGE_DIM.articleCard.height}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="p-5">
@@ -191,7 +195,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
               <p className="text-text-muted mb-6">
                 {search || category
                   ? 'Try a different category or search term.'
-                  : 'Check back soon for fashion tips and styling guides.'}
+                  : 'Check back soon for stories and inspiration!'}
               </p>
               <Link href={search || category ? '/articles' : '/'} className="btn btn-primary">
                 {search || category ? 'Clear filters' : 'Back to Home'}

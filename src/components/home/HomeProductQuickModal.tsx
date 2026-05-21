@@ -14,7 +14,7 @@ import {
   getStockQuantity,
   isBundleProduct,
 } from '@/lib/product-utils'
-import { getProductBundleImages } from '@/lib/image-utils'
+import { getProductCardImages, IMAGE_DIM } from '@/lib/image-utils'
 
 interface HomeProductQuickModalProps {
   product: Product
@@ -43,7 +43,7 @@ export default function HomeProductQuickModal({ product, open, onClose }: HomePr
   const inCartQty = lineItem?.quantity ?? 0
 
   const heroImage = useMemo(() => {
-    const urls = getProductBundleImages(product)
+    const urls = getProductCardImages(product)
     return urls[0] || product.image || ''
   }, [product])
 
@@ -166,14 +166,14 @@ export default function HomeProductQuickModal({ product, open, onClose }: HomePr
       }}
     >
       <div
-        className="bg-surface rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in duration-200 border border-border-default"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in duration-200 border border-gray-100"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 flex justify-end p-2 bg-surface/95 backdrop-blur-sm border-b border-border-default z-10">
+        <div className="sticky top-0 flex justify-end p-2 bg-white/95 border-b border-gray-100 z-10">
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-full text-text-muted hover:bg-surface-raised hover:text-text transition-colors"
+            className="p-2 rounded-full text-text-muted hover:bg-gray-100 hover:text-text transition-colors"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -182,8 +182,16 @@ export default function HomeProductQuickModal({ product, open, onClose }: HomePr
 
         <div className="p-6 pt-2 space-y-4">
           {heroImage ? (
-            <div className="aspect-square rounded-xl overflow-hidden bg-surface-raised border border-border-default">
-              <img src={heroImage} alt="" className="w-full h-full object-contain" />
+            <div className="aspect-square rounded-xl overflow-hidden bg-gray-50 border border-gray-100">
+              <img
+                src={heroImage}
+                alt=""
+                width={IMAGE_DIM.productCard.width}
+                height={IMAGE_DIM.productCard.height}
+                loading="lazy"
+                decoding="async"
+                className="w-full h-full object-contain"
+              />
             </div>
           ) : null}
 
@@ -222,7 +230,7 @@ export default function HomeProductQuickModal({ product, open, onClose }: HomePr
             <p className="text-sm text-text-light leading-relaxed whitespace-pre-line line-clamp-8">{product.description}</p>
           ) : null}
 
-          <div className="pt-2 border-t border-border-default space-y-4">
+          <div className="pt-2 border-t border-gray-100 space-y-4">
             {inCartQty < 1 ? (
               <button
                 type="button"
@@ -230,7 +238,7 @@ export default function HomeProductQuickModal({ product, open, onClose }: HomePr
                 disabled={loading || isExpired || (isBundle && (cart?.items?.some((i) => i.is_bundle) ?? false))}
                 className={`w-full py-3.5 rounded-xl font-semibold text-base flex items-center justify-center gap-2 transition-colors ${
                   isExpired
-                    ? 'bg-surface-raised text-text-muted cursor-not-allowed opacity-70'
+                    ? 'bg-gray-200 text-text-muted cursor-not-allowed'
                     : isVintage
                       ? 'bg-vintage-primary text-white hover:bg-vintage-primary-dark'
                       : 'bg-modern-primary text-white hover:bg-modern-primary-dark'
@@ -246,7 +254,7 @@ export default function HomeProductQuickModal({ product, open, onClose }: HomePr
                   type="button"
                   onClick={handleDec}
                   disabled={loading}
-                  className="w-12 h-12 rounded-full bg-surface-raised border border-border-default flex items-center justify-center hover:brightness-110 disabled:opacity-50 transition-colors"
+                  className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 disabled:opacity-50 transition-colors"
                   aria-label="Decrease quantity or remove"
                 >
                   <Minus className="w-5 h-5" />
@@ -256,7 +264,7 @@ export default function HomeProductQuickModal({ product, open, onClose }: HomePr
                   type="button"
                   onClick={handleInc}
                   disabled={loading || isBundle || inCartQty >= maxQuantity || isExpired}
-                  className="w-12 h-12 rounded-full bg-surface-raised border border-border-default flex items-center justify-center hover:brightness-110 disabled:opacity-50 transition-colors"
+                  className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 disabled:opacity-50 transition-colors"
                   aria-label="Increase quantity"
                 >
                   <Plus className="w-5 h-5" />
