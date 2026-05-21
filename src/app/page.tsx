@@ -250,7 +250,11 @@ export default async function HomePage() {
         </section>
       ) : null}
 
-      <HomeArticlesSection articles={homeArticles} />
+      <HomeArticlesSection
+        articles={homeArticles}
+        title="Style Journal"
+        subtitle="Fashion tips, styling guides, and seasonal edits"
+      />
 
       {/* CTA */}
       <section className="py-16 brand-gradient-band">

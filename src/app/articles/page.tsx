@@ -5,6 +5,8 @@ import {
   getArticleDisplaySettings,
 } from '@/lib/article-display-settings'
 import { Article } from '@/lib/types'
+import { getArticleImageUrl } from '@/lib/image-utils'
+import { resolveArticleAuthorLabel } from '@/lib/article-author-options'
 import { Calendar, User, ArrowRight, Search, Newspaper } from 'lucide-react'
 import PageHero from '@/components/hero/PageHero'
 
@@ -74,10 +76,10 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
       <section className="py-12 bg-vintage-primary text-white">
         <div className="container-wide">
           <h1 className="text-3xl md:text-4xl font-bold font-playfair mb-2">
-            Stories & Inspiration
+            Style Journal
           </h1>
           <p className="text-lg text-green-100">
-            Tips, guides, and behind-the-scenes from the world of vintage and modern treasures
+            Fashion tips, styling guides, and seasonal edits from our editorial team
           </p>
         </div>
       </section>
@@ -142,17 +144,11 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
             <div className="article-grid">
               {articles.map((article: Article) => (
                 <Link key={article.id} href={`/articles/${article.slug}`} className="card group overflow-hidden">
-                  {article.featured_media?.file_url ? (
-                    <img
-                      src={article.featured_media.file_url}
-                      alt={article.title}
-                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-48 bg-vintage-primary/10 flex items-center justify-center">
-                      <Newspaper className="w-12 h-12 text-vintage-primary/30" aria-hidden />
-                    </div>
-                  )}
+                  <img
+                    src={getArticleImageUrl(article)}
+                    alt={article.title}
+                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
                   <div className="p-5">
                     {article.category && (
                       <span className="tag tag-vintage mb-2">{article.category.name}</span>
@@ -171,12 +167,10 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
                             {new Date(article.published_at).toLocaleDateString()}
                           </span>
                         )}
-                        {article.author?.full_name && (
-                          <span className="flex items-center gap-1">
-                            <User className="w-4 h-4" />
-                            {article.author.full_name}
-                          </span>
-                        )}
+                        <span className="flex items-center gap-1">
+                          <User className="w-4 h-4" />
+                          {resolveArticleAuthorLabel(article)}
+                        </span>
                       </div>
                     </div>
                     <div className="mt-4 flex items-center text-vintage-primary font-medium text-sm">
@@ -197,7 +191,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
               <p className="text-text-muted mb-6">
                 {search || category
                   ? 'Try a different category or search term.'
-                  : 'Check back soon for stories and inspiration!'}
+                  : 'Check back soon for fashion tips and styling guides.'}
               </p>
               <Link href={search || category ? '/articles' : '/'} className="btn btn-primary">
                 {search || category ? 'Clear filters' : 'Back to Home'}
